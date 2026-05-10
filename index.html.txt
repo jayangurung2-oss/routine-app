@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>My Routine App</title>
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #f2f6ff;
+    }
+
+    header {
+      background: #4CAF50;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 20px;
+    }
+
+    .container {
+      padding: 15px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin: 8px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>📱 My Routine App</header>
+
+<div class="container">
+
+  <div class="card">
+    <h3>Today's Tasks</h3>
+
+    <label><input type="checkbox" class="task"> Workout</label>
+    <label><input type="checkbox" class="task"> Running</label>
+    <label><input type="checkbox" class="task"> Healthy Food</label>
+    <label><input type="checkbox" class="task"> Water Intake</label>
+    <label><input type="checkbox" class="task"> Skincare</label>
+    <label><input type="checkbox" class="task"> Sleep Early</label>
+
+    <button onclick="saveDay()">Save Day</button>
+  </div>
+
+  <div class="card">
+    <h3>📊 Weekly Progress</h3>
+    <canvas id="chart"></canvas>
+  </div>
+
+</div>
+
+<script>
+let history = JSON.parse(localStorage.getItem("history")) || [];
+
+function saveDay() {
+  let tasks = document.querySelectorAll(".task");
+  let done = 0;
+
+  tasks.forEach(t => {
+    if (t.checked) done++;
+    t.checked = false;
+  });
+
+  history.push(done);
+  localStorage.setItem("history", JSON.stringify(history));
+
+  drawChart();
+}
+
+function drawChart() {
+  let good = history.filter(x => x >= 4).length;
+  let bad = history.length - good;
+
+  let ctx = document.getElementById("chart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["Good Days", "Low Days"],
+      datasets: [{
+        data: [good, bad],
+        backgroundColor: ["#4CAF50", "#FF5252"]
+      }]
+    }
+  });
+}
+
+drawChart();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+
+</body>
+</html>
